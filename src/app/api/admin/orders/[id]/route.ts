@@ -1,15 +1,18 @@
+
 import { NextResponse } from "next/server";
 import dbConnect from "@/src/library/dbConnect";
 import OrderModel from "@/src/model/OrdersModel";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const order = await OrderModel.findById(params.id).populate(
+    const { id } = await params;
+
+    const order = await OrderModel.findById(id).populate(
       "User",
       "name email"
     );
@@ -36,15 +39,16 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
+    const { id } = await params;
     const body = await request.json();
 
     const updatedOrder = await OrderModel.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       { new: true }
     );
@@ -75,12 +79,14 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const deletedOrder = await OrderModel.findByIdAndDelete(params.id);
+    const { id } = await params;
+
+    const deletedOrder = await OrderModel.findByIdAndDelete(id);
 
     if (!deletedOrder) {
       return NextResponse.json(
