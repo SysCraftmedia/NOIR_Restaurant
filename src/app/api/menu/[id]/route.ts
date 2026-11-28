@@ -1,15 +1,18 @@
+
 import { NextResponse } from "next/server";
 import dbConnect from "@/src/library/dbConnect";
 import MenuItemModel from "@/src/model/MenuItemModel";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const menuItem = await MenuItemModel.findById(params.id).populate(
+    const { id } = await params;
+
+    const menuItem = await MenuItemModel.findById(id).populate(
       "category",
       "name slug"
     );
