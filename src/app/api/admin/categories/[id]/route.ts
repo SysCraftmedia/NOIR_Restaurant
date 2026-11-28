@@ -1,15 +1,17 @@
+
 import { NextResponse } from "next/server";
 import dbConnect from "@/src/library/dbConnect";
 import CategoriesModel from "@/src/model/CategoriesModel";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const category = await CategoriesModel.findById(params.id);
+    const { id } = await params;
+    const category = await CategoriesModel.findById(id);
 
     if (!category) {
       return NextResponse.json(
@@ -33,15 +35,16 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
+    const { id } = await params;
     const body = await request.json();
 
     const updatedCategory = await CategoriesModel.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       { new: true }
     );
@@ -72,12 +75,13 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const deletedCategory = await CategoriesModel.findByIdAndDelete(params.id);
+    const { id } = await params;
+    const deletedCategory = await CategoriesModel.findByIdAndDelete(id);
 
     if (!deletedCategory) {
       return NextResponse.json(
