@@ -1,15 +1,18 @@
+
 import { NextResponse } from "next/server";
 import dbConnect from "@/src/library/dbConnect";
 import MenuItemModel from "@/src/model/MenuItemModel";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const menuItem = await MenuItemModel.findById(params.id).populate(
+    const { id } = await params;
+
+    const menuItem = await MenuItemModel.findById(id).populate(
       "category",
       "name slug"
     );
@@ -36,15 +39,16 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
+    const { id } = await params;
     const body = await request.json();
 
     const updatedMenuItem = await MenuItemModel.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       { new: true }
     );
@@ -75,12 +79,13 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const deletedMenuItem = await MenuItemModel.findByIdAndDelete(params.id);
+    const { id } = await params;
+    const deletedMenuItem = await MenuItemModel.findByIdAndDelete(id);
 
     if (!deletedMenuItem) {
       return NextResponse.json(
