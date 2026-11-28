@@ -1,18 +1,20 @@
+
 import { NextResponse } from "next/server";
 import dbConnect from "@/src/library/dbConnect";
 import PromoCodeModel from "@/src/model/promocodeModel";
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
+    const { id } = await params;
     const body = await request.json();
 
     const updatedPromo = await PromoCodeModel.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       { new: true }
     );
@@ -43,12 +45,14 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const deletedPromo = await PromoCodeModel.findByIdAndDelete(params.id);
+    const { id } = await params;
+
+    const deletedPromo = await PromoCodeModel.findByIdAndDelete(id);
 
     if (!deletedPromo) {
       return NextResponse.json(
